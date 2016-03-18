@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#exec 1> >(logger -s -t $(basename $0)) 2>&1
+
+
+
+ARG1=$1
+ARG2=$2
+COMMUNITY="public"
+ERROR="$ARG1 is not a recognized argument"
+HELP="./snmp_restart <module_name>\n
+\n
+Module name may be any one of the following:\n
+\n
+	\tuseConfig - use modules enabled in callrec.conf\n
+	\tds  - (decoder service), \n
+	\tcore - Core Service), \n
+	\tipcc  - (UCCE Service), \n
+	\tipccx - (UCCX service)\n"
+
+function module_name {
+  if [[ $1 = "core" ]]; then
+    OID=.1.3.6.1.4.1.16321.1.10.1.2
+    core_check $1
+  elif [[ $1 = "ds" ]]; then 
+    OID=.1.3.6.1.4.1.16321.1.10.6.2
+    module_check $1
+  elif [[ $1 = "rts_jtapi" ]]; then
+    OID=.1.3.6.1.4.1.16321.1.10.11.2
+    module_check $1 
+  elif [[ $1 = "ipcc" ]]; then
+    OID=.1.3.6.1.4.1.16321.1.10.12.2 
+    module_check $1
+  elif [[ $1 = "ipccex" ]]; then
+    OID=.1.3.6.1.4.1.16321.1.10.14.2 
+    module_check $1
+  else
+    echo "$1 is not a recognized argument" && echo -e $HELP 
+  fi
+}
+
+function core_check {
+  CORE_OUT=`snmpwalk -v2c -c $COMMUNITY localhost $OID | awk {'print $4'}`
+  if [[ $CORE_OUT = *0* ]]; then
+    echo "All is well for the $1 module" 
+  elif [[ $CORE_OUT = *1* ]]; then
+    echo "Service in warning state, you may want to restart it"
+  elif [[ $CORE_OUT = *2* ]]; then
+    echo "$1 is in a critical state, zoom services will be restarted"
+    service callrec restart -f
+  fi
+}
+
+   
+function module_check {
+  PROBE_OUT=`snmpwalk -v2c -c $COMMUNITY localhost $OID | awk {'print $4'}`
+  if [[ $PROBE_OUT = *0* ]]; then
+    echo "All is well for the $1 module" 
+  elif [[ $PROBE_OUT = *1* ]]; then
+    echo "Service in warning state, you may want to restart it"
+  elif [[ $PROBE_OUT = *2* ]]; then
+    echo "$1 is in a critical state, zoom services will be restarted"
+    /opt/callrec/bin/rc.callrec_$1 restart
+  fi
+}
+
+
+
+
+
+if [[ $ARG1 = useConfig && -f $ARG2 ]]; then
+  for i in `cat /opt/callrec/etc/callrec.conf`; do
+    if [[ $i = RUN_*1* ]]; then 
+      module_name `echo $i | sed 's/RUN_//g' | sed 's/=.*//g' | tr '[:upper:]' '[:lower:]'`;
+    fi
+  done
+else
+    module_name $ARG1
+fi
+ 
+
