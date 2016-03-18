@@ -69,7 +69,7 @@ function module_check {
 
 
 if [[ $ARG1 = useConfig && -f $ARG2 ]]; then
-  for i in `cat /opt/callrec/etc/callrec.conf`; do
+  for i in `cat $ARG2`; do
     if [[ $i = RUN_*1* ]]; then 
       module_name `echo $i | sed 's/RUN_//g' | sed 's/=.*//g' | tr '[:upper:]' '[:lower:]'`;
     fi
