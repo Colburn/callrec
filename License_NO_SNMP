@@ -1,0 +1,15 @@
+#!/bin/bash
+
+LICENSE=`/opt/callrec/bin/callrec_status -state all -name remoteJTAPI  | grep "Licensed terminals count" | awk {'print $11'} | sed 's/([0-9]*)//g'`
+EXTRA=`/opt/callrec/bin/callrec_status -state all -name remoteJTAPI -verbosity 5  | grep "Not created terminal" | awk {'print $15'} | sed 's/([0-9]*)//g'`
+COUNT=`/opt/callrec/bin/callrec_status -state all -name remoteJTAPI -verbosity 5  | grep "Count of terminals" | awk {'print $11'} | sed 's/([0-9]*)//g'`
+EMAIL=someadmin@somedomain.com
+
+if [[ $COUNT > $LICENSE ]]; then
+  echo "You are over licensed by $EXTRA" | mail -s "License Check" $EMAIL
+elif [[ $COUNT = $LICENSE ]]; then
+  echo "Warning: You are using all $COUNT licenses, please purchase more if you wish to add more phones" | mail -s "License Check" $EMAIL
+elif [[ $LICENSE > $COUNT ]]; then
+  DIFF=`expr $LICENSE - $COUNT`
+  echo -e "\nOK: You are licensed for $LICENSE but only using $COUNT. You can still add $DIFF phones\n" | mail -s "License Check" $EMAIL
+fi
