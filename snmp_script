@@ -39,33 +39,24 @@ function module_name {
   fi
 }
 
-function core_check {
-  CORE_OUT=`snmpwalk -v2c -c $COMMUNITY localhost $OID | awk {'print $4'}`
-  if [[ $CORE_OUT = *0* ]]; then
-    echo "All is well for the $1 module" 
-  elif [[ $CORE_OUT = *1* ]]; then
-    echo "Service in warning state, you may want to restart it"
-  elif [[ $CORE_OUT = *2* ]]; then
-    echo "$1 is in a critical state, zoom services will be restarted"
-    service callrec restart -f
-  fi
-}
 
-   
+
 function module_check {
   PROBE_OUT=`snmpwalk -v2c -c $COMMUNITY localhost $OID | awk {'print $4'}`
   if [[ $PROBE_OUT = *0* ]]; then
-    echo "All is well for the $1 module" 
+    echo "All is well for the $1 module"
   elif [[ $PROBE_OUT = *1* ]]; then
     echo "Service in warning state, you may want to restart it"
   elif [[ $PROBE_OUT = *2* ]]; then
-    echo "$1 is in a critical state, zoom services will be restarted"
-    /opt/callrec/bin/rc.callrec_$1 restart
+    if [[ $1 = core ]]; then
+      echo "$1 is in a critical state, ZOOM services will be restarted"
+      service callrec restart -f
+    else
+      echo "$1 is in a critical state and will be restarted"
+      /opt/callrec/bin/rc.callrec_$1 restart
+    fi
   fi
 }
-
-
-
 
 
 if [[ $ARG1 = useConfig && -f $ARG2 ]]; then
