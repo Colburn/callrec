@@ -8,7 +8,6 @@ if [ $count  -gt 0 ]; then
                         psql -U postgres callrec -c "update cfiles set cfpath='$z' where cfpath='$i';"
                 done;
                 count=`expr $count-100`
-                #count=(($count-100)) 
         done
 fi
 
