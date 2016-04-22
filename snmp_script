@@ -3,7 +3,8 @@
 #
 #          FILE:  snmp_script.sh
 # 
-#         USAGE:  ./snmp_script.sh 
+#         USAGE:  ./snmp_script.sh <modulename> or  
+#	          ./snmp_script.sh useConfig <path-to-callrec.conf>
 # 
 #   DESCRIPTION:  Check snmp OID for status of the module. If the module reports
 #                 a critical state, it will be restarted
