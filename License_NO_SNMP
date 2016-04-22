@@ -1,4 +1,22 @@
-#!/bin/bash
+#!/usr/bin/python 
+#===============================================================================
+#
+#          FILE:  License_NO_SNMP.sh
+# 
+#         USAGE:  ./License_NO_SNMP.sh 
+# 
+#   DESCRIPTION:  Checks the license count and notifies the admin if the server
+#                 is over license. Used in the case SNMP monitoring is diabled.
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR: Colburn Hayden (CH), colburn.hayden@zoomint.com
+#       COMPANY: Zoom International, Prague
+#       CREATED: N/A
+#      REVISION:  ---
+#===============================================================================
 
 LICENSE=`/opt/callrec/bin/callrec_status -state all -name remoteJTAPI  | grep "Licensed terminals count" | awk {'print $11'} | sed 's/([0-9]*)//g'`
 EXTRA=`/opt/callrec/bin/callrec_status -state all -name remoteJTAPI -verbosity 5  | grep "Not created terminal" | awk {'print $15'} | sed 's/([0-9]*)//g'`
