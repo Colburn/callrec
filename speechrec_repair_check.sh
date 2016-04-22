@@ -22,7 +22,7 @@ function check_file {
 			psql -U postgres $dbname -c "update cfiles set cfpath='$truefile' where cfpath='$i';"
 		else
 			now=`date +'%D %T'`
-			echo "$now Attempted to update $1 to $i, but target file does not exist on the file system. Skipping file..." >> /opt/callrec/logs/SpeechREC_repair.log
+			echo "$now Attempted to update $i to $1, but target file does not exist on the file system. Skipping file..." >> /opt/callrec/logs/SpeechREC_repair.log
 		fi
 	fi
 }
