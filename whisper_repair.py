@@ -1,4 +1,25 @@
 
+#!/usr/bin/python 
+#===============================================================================
+#
+#          FILE:  whisper_repair.py
+# 
+#         USAGE:   python ./whisper_repair.sh 
+# 
+#   DESCRIPTION:  Workaround for bug which causes call external data to attach
+#                 to whisper segment of calls, but not the actual call. Copies
+#                 external data from the whisper calls to the actual couple. 
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR: Colburn Hayden (CH), colburn.hayden@zoomint.com
+#       COMPANY: Zoom International, Prague
+#       CREATED: N/A
+#      REVISION:  ---
+#===============================================================================
+
 import pg, subprocess                                                                                                                                                                                       
 callrec = pg.connect('callrec', 'localhost', 5432, None, None, 'callrec', 'callrec')                                                                                                                        
                                                                                                                                                                                                                                                                                                                                                                                                                       
