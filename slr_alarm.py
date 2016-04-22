@@ -1,4 +1,24 @@
-#!/usr/bin/python
+#!/usr/bin/python  
+#===============================================================================
+#
+#          FILE:  slr_alarm.py
+# 
+#         USAGE:  python ./slr_alarm.py 
+# 
+#   DESCRIPTION:  Parses the SLR log to see if the Spanless Recorder service 
+#                 is responding to SIP invites. If it is not, it is reloaded. 
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR: Colburn Hayden (CH), colburn.hayden@zoomint.com
+#       COMPANY: Zoom International, Prague
+#       CREATED: 04.22.2016 14:30:00 CET
+#      REVISION:  ---
+#===============================================================================
+
+
 import time
 import subprocess 
 
