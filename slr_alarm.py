@@ -14,7 +14,7 @@
 #         NOTES:  ---
 #        AUTHOR: Colburn Hayden (CH), colburn.hayden@zoomint.com
 #       COMPANY: Zoom International, Prague
-#       CREATED: 04.22.2016 14:30:00 CET
+#       CREATED: N/A
 #      REVISION:  ---
 #===============================================================================
 
