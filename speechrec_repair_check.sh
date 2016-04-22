@@ -1,6 +1,26 @@
 
-updatedb
+#!/bin/bash - 
+#===============================================================================
+#
+#          FILE:  speechrec_repair_check.sh
+# 
+#         USAGE:  ./speechrec_repair_check.sh 
+# 
+#   DESCRIPTION:  Edits cfiles table to point to correct AUDIO file path where 
+#                 SpeechREC did not properly update cfiles table
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR: Colburn Hayden (CH), colburn.hayden@zoomint.com
+#       COMPANY: Zoom International, Prague
+#       CREATED: 04.22.2016 14:30:00 CET
+#      REVISION:  ---
+#===============================================================================
 
+
+updatedb
 #Uncomment notlike if you want to avoid changing the name to oldext files with 'sox' in the filename
 #notlike=and\ cfpath\ not\ like\ \'%sox%\'
 callsdir=/opt/callrec/data/calls
