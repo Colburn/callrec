@@ -23,12 +23,18 @@
 updatedb
 #Uncomment notlike if you want to avoid changing the name to oldext files with 'sox' in the filename
 #notlike=and\ cfpath\ not\ like\ \'%sox%\'
+
+startdate=2015-04-29\ 11:00:00
+stopdate=2015-04-29\ 15:00:00
+stopwindow=\ and\ start_ts\<\=\'$stopdate\'
+startwindow=and\ start_ts\>\=\'$startdate\'$stopwindow
 callsdir=/opt/callrec/data/calls
 oldext=\.wav
 newext=_sox\.mp3
 dbname=callrec
 now=`date +'%D %T'`
-count=`psql -U postgres $dbname -c "select count(*) from cfiles where cfpath like '%$oldext%' $notlike;" -A | grep "^[0-9]*$"`
+count=`psql -U postgres $dbname -c "select count(*) from cfiles where cfpath like '%$oldext%' $notlike $startwindow;" -A | grep "^[0-9]*$"`
+
 echo "$now Found $count calls to repair" >> /opt/callrec/logs/SpeechREC_repair.log
 
 
@@ -57,7 +63,7 @@ function check_file {
 
 if [ $count  -gt 0 ]; then
         while [[ $count = ^-?[0-9]+$  ]] || [[ $count -gt 0 ]]; do
-                x=`psql -U postgres $dbname -c "select cfpath from cfiles where cfpath like '%$oldext%' $notlike limit 100;" | grep /`
+                x=`psql -U postgres $dbname -c "select cfpath from cfiles where cfpath like '%$oldext%' $notlike $startwindow limit 100;" | grep /`
                 for i in $x; do
                         couple=`psql -U postgres callrec -c "select cplid from cfiles where cfpath='$i';" -A | less | grep "^[0-9]*$"`
                         z=`echo $i | sed -e "s/$oldext/$newext/g"`
