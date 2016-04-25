@@ -28,7 +28,7 @@ oldext=\.wav
 newext=_sox\.mp3
 dbname=callrec
 now=`date +'%D %T'`
-count=`psql -U postgres $dbname -c "select count(*) from cfiles where cfpath like '%$oldext%' $notlike;" | awk {'print $1'} | grep [0-9] | grep -v '('`
+count=`psql -U postgres $dbname -c "select count(*) from cfiles where cfpath like '%$oldext%' $notlike;" -A | grep "^[0-9]*$"`
 echo "$now Found $count calls to repair" >> /opt/callrec/logs/SpeechREC_repair.log
 
 
