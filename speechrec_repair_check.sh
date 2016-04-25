@@ -6,8 +6,8 @@
 # 
 #         USAGE:  ./speechrec_repair_check.sh 
 # 
-#   DESCRIPTION:  Edits cfiles table to point to correct AUDIO file path where 
-#                 SpeechREC did not properly update cfiles table
+#   DESCRIPTION:  Edits cfiles table to contain the correct AUDIO file path where 
+#                 SpeechREC did not properly update cfpath.
 # 
 #       OPTIONS:  ---
 #  REQUIREMENTS:  ---
