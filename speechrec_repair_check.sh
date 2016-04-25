@@ -57,7 +57,7 @@ function check_file {
 
 if [ $count  -gt 0 ]; then
         while [[ $count = ^-?[0-9]+$  ]] || [[ $count -gt 0 ]]; do
-                x=`psql -U postgres $dbname -c "select cfpath from cfiles where cfpath like '%$oldext%' $notlike limit 100;" | grep $callsdir`
+                x=`psql -U postgres $dbname -c "select cfpath from cfiles where cfpath like '%$oldext%' $notlike limit 100;" | grep /`
                 for i in $x; do
                         couple=`psql -U postgres callrec -c "select cplid from cfiles where cfpath='$i';" -A | less | grep "^[0-9]*$"`
                         z=`echo $i | sed -e "s/$oldext/$newext/g"`
