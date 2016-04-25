@@ -34,11 +34,14 @@ count=`psql -U postgres $dbname -c "select count(*) from cfiles where cfpath lik
 function check_file {
 	finder=`locate $1`
 	if [[ $finder != "" ]]; then
+		echo "$now Found $1 on file system. Changing $i to $1 in DB" >> /opt/callrec/logs/SpeechREC_repair.log
 		psql -U postgres $dbname -c "update cfiles set cfpath='$1' where cfpath='$i';"
 	else 
+		echo "$now Updated file $1 does not exist, truncating file extension locate proper call on filesystem." >> /opt/callrec/logs/SpeechREC_repair.log
 		prefix=`echo $i | sed -e 's/_sox//g' | sed -e 's/\.[a-z]\{1,3\}//g'`
 		truefile=`locate $prefix`
 		if [[ $truefile != "" ]]; then
+			echo "$now Found matching file on filesystem. Changing $i to $truefile in DB" >> /opt/callrec/logs/SpeechREC_repair.log
 			psql -U postgres $dbname -c "update cfiles set cfpath='$truefile' where cfpath='$i';"
 		else
 			now=`date +'%D %T'`
