@@ -6,7 +6,7 @@
 #         USAGE:  ./jtapi_reload.sh 
 # 
 #   DESCRIPTION:  Switches primary provider entry in sniffers.xml and reloads 
-#                 JTAPI service. Workaournd for CUCM 8.6 bug where devices 
+#                 JTAPI service. Workaround for CUCM 8.6 bug where devices 
 #		  are improperly reported 'Out of Service.'
 # 
 #       OPTIONS:  ---
