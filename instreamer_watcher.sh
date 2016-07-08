@@ -3,7 +3,7 @@
 #
 #          FILE:  instreamer_watcher.sh
 # 
-#         USAGE:  ./instreamer_watcher.sh <start|stop|restart>
+#         USAGE:  ./instreamer_watcher.sh <start|stop|restart|oneshot>
 # 
 #   DESCRIPTION:  Runs as a daemon to watch an active instreamer connection (ip_addr) 
 # 				  and restarts instreamer service if no connection present
@@ -16,9 +16,6 @@
 #       CREATED: 07.08.2016 14:30:00 CET
 #      REVISION:  ---
 #===============================================================================
-
-
-
 
 date=`date`
 PIDFILE=/opt/callrec/run/instreamer_watcher.pid
@@ -66,24 +63,37 @@ stopDaemon() {
 }
 
 restartDaemon() {
-        stopDaemon
-        startDaemon
+	stopDaemon
+	startDaemon
 
 }
 
+oneshot() {
+	for i in ip_addr; do
+		connection=`netstat -tupn | grep $i`
+		date=`date`
+		echo "$date Checking the process" >> $logfile
+		check_connection
+		wait
+	done
+}
+
 case "$1" in
-        start)
-                if [ -f $PIDFILE ]; then
-                        echo "$date Instreamer watcher daemon is already running at PID:" `cat $PIDFILE` >> $logfile
-                        exit 0
-                else
-                        startDaemon &
-                fi
-                ;;
-        stop)
-                stopDaemon
-                ;;
-                *)
-        echo "Error: usage $0 {start | stop | restart}"
+	start)
+		if [ -f $PIDFILE ]; then
+			echo "$date Instreamer watcher daemon is already running at PID:" `cat $PIDFILE` >> $logfile
+			exit 0
+		else
+			startDaemon &
+		fi
+		;;
+	stop)
+		stopDaemon
+		;;
+	oneshot)
+		oneshot
+		;;
+		*)
+	echo "Error: usage $0 {start | stop | restart | oneshot}"
 esac
 exit 0
