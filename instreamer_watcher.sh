@@ -19,7 +19,6 @@
 
 
 
-
 date=`date`
 PIDFILE=/opt/callrec/run/instreamer_watcher.pid
 logfile=/opt/callrec/logs/instreamer_watcher.log
