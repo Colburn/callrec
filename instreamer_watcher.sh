@@ -27,6 +27,8 @@ logfile=/opt/callrec/logs/instreamer_watcher.log
 email_addr=colburn.hayden@zoomint.com
 ip_addr=`cat /opt/callrec/etc/extras.xml | grep '"streamUrl"' | sed -e 's/.*<Value name="streamUrl">//g' -e 's/<\/Value>//g'`
 connection=`netstat -tupn | grep $ip_addr`
+
+
 check_connection() {
 	if [[ $connection = '' ]]; then
 		/opt/callrec/bin/rc.callrec_instreamer restart > /dev/null &2>1
