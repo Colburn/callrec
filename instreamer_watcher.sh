@@ -50,8 +50,8 @@ startDaemon() {
 			echo "$date Checking the process" >> $logfile
 			check_connection
 			wait
-		unset IFS	
 		done
+		unset IFS
 		sleep 5s
 	done
 }
