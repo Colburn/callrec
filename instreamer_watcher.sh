@@ -42,12 +42,14 @@ startDaemon() {
 	touch $PIDFILE
 	echo $BASHPID > $PIDFILE
 	while true; do
+		IFS=,
 		for i in ip_addr; do
 			connection=`netstat -tupn | grep $i`
 			date=`date`
 			echo "$date Checking the process" >> $logfile
 			check_connection
 			wait
+		unset IFS	
 		done
 		sleep 5s
 	done
