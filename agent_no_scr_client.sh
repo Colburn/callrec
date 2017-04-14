@@ -15,26 +15,26 @@ if [[ $1 == '' ]]; then
     exit 1
 fi
 
-while true; do
+while (("$#")); do
         case $1 in
         -k|--key )
-            KEY1='$OPTARG'
+            KEY1=$2
             shift 2
         ;;
         -o|--other-key )
-            if [[ $OPTARG == 'NULL' ]]; then
+            if [[ $2 == 'NULL' ]]; then
                 unset KEY2
             else
-                KEY2=" or key='$OPTARG'"
+                KEY2=" or key='$2'"
             fi
             shift 2
         ;;
         -f|--output-file )
-            FILE='$OPTARG'
+            FILE=$2
             shift 2
         ;;
         -d|--database )
-            DB=$OPTARG
+            DB=$2
             shift 2
         ;;
         -h|--help )
