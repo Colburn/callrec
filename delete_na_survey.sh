@@ -1,4 +1,4 @@
-DB_ADDR="10.9.153.100"
+DB_ADDR="localhost"
 QUERY="delete from evaluations where evaluationid not in (select evaluationid from evaluations where evaluationid in (
         select evaluationid from criteria where criteriaid in (
                 select criteriaid from subevaluation where subevaluationid in (
