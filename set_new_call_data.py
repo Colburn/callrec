@@ -54,4 +54,4 @@ def updateDate():
 		callrec.query(query.format(i) + add_query)
 
 updateDate()
-moveFiles()
+#moveFiles()
