@@ -267,11 +267,6 @@ class Cfile(object):
 		self.sgid=''
 
 	def save(self):
-		
-		for i in [self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.ckvalue, self.cktype, self.sgid]:
-			print i			
-	
-
 		if all(column!='' for column in [self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.ckvalue, self.cktype, self.sgid]):
 			callrec.query("insert into cfiles (id, cplid, cftype, cfpath, enc_key_id, digest, start_ts, stop_ts, cktype, ckvalue, sgid, cfsize) values ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '0')".format(self.cfileid, self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.cktype, self.ckvalue, self.sgid))
 			return True
