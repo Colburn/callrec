@@ -40,6 +40,8 @@ def getCoupleLength(start, stop):
 	stopStruct=time.strptime(stop, "%Y-%m-%d %H:%M:%S")
 	length=time.mktime(stopStruct)-time.mktime(startStruct)
 	return int(length)
+
+
 #take cfile data from log and convert to python object
 #using yaml library
 def convertCfileDataToYaml(logData):
