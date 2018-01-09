@@ -48,7 +48,6 @@ dateRegex=r'([A-Za-z]{0,4})\s([0-9]{1,2})\s([0-9]{2}):([0-9]{2}):([0-9]{2})'
 
 #Take log date format and convert it to PostgreSQL date format
 def parseDate(date):
-	#logging.debug(date)
 	timeStruct=time.strptime(date, "%b %d %H:%M:%S %Y")
 	return time.strftime("%Y-%m-%d %H:%M:%S", timeStruct)
 
@@ -69,9 +68,6 @@ def convertCfileDataToYaml(logData):
 	logData=logData.replace('=', ' : ')
 	newLogData=re.sub(r'([A-Za-z]+){', '{', logData)
 	yamlData=yaml.load(newLogData)
-
-	#logging.debug(str(yamlData))
-
 	return yamlData
 
 
@@ -80,9 +76,7 @@ def readLogFile():
 	with open(inputLog, 'r') as coreLogFile:
 		coreLogLines=coreLogFile.readlines()
 		for line in coreLogLines:
-			##logging.debug("Log Line Text: {0}".format(line))
 			if re.search(r'call created[.]', line):
-				#logging.debug("Log Line Text: {0}".format(line))
 				createCall(line)
 			elif re.search(r'call removed[.]', line):
 				finishCall(line)
@@ -117,7 +111,6 @@ def saveCalls(callHash):
 						logging.debug("saved cfile: {0}".format(cfile.cfileid))
 
 def getID(dataString):
-	#return match.group(0)
 	return re.search(r'([0-9])+', dataString).group(0)
 
 
@@ -127,8 +120,6 @@ def createCall(line):
 	call=callHash[callidString]=Call(int(callidString))
 	dateString=re.search(dateRegex, line).group(0)
 	call.start_ts=parseDate("{0} {1}".format(dateString, year))
-
-	#logging.info('creating call: {0}'.format(call.callid))
 
 
 
@@ -141,7 +132,6 @@ def finishCall(line):
 
 		call.stop_ts=parseDate("{0} {1}".format(dateString, year))
 		call.cplcnt=len(call.couples)
-		#logging.info('Finished call: {0}'.format(call.callid))
 	except KeyError: 
 		logging.warning("Key errror while finishing call")
 
@@ -158,15 +148,13 @@ def createCouple(line):
 		dateString=re.search(dateRegex, line).group(0)
 		couple.start_ts=parseDate("{0} {1}".format(dateString, year))
  
-	        #logging.info("Trying to greate couple from this line:  {0}".format(line))
 		couple.callingnr=re.search(r'callingNumber[=](([A-Za-z0-9+])+)', line).group(0).replace('callingNumber=', '')
 		couple.originalcallednr=re.search(r'calledNumber[=](([A-Za-z0-9+])+)', line).group(0).replace('calledNumber=', '')
 		couple.sid="{0}_{1}_{2}_{3}".format(epochDate("{0} {1}".format(dateString, year)), couple.coupleid, couple.callingnr, couple.originalcallednr)	
-		#logging.info("Created couple: {0} for call: {0}".format(couple.coupleid, couple.callid))
 	except KeyError as keyErr:
 		logging.warning("Error creating couple due to key error")
 		logging.warning(keyErr)
-		#logging.info("Skipping couple: {0} because no matching call".format(coupleidString))
+
 
 
 #finish couple and add stop_ts
@@ -178,7 +166,6 @@ def finishCouple(line):
 		dateString=re.search(dateRegex, line).group(0)
 		couple.stop_ts=parseDate("{0} {1}".format(dateString, year))
 		couple.length=getCoupleLength(couple.start_ts, couple.stop_ts)
-		#logging.info('Finish couple: {0}'.format(couple.coupleid))
 	except KeyError as keyErr:
 		logging.warning("Error finishing couple due to key error")
 		logging.warning(keyErr)
@@ -188,14 +175,11 @@ def finishCouple(line):
 def createCfile(line):
 	cfileDataString=re.search(r'(DecodingResponse{).*', line).group(0)
 	cfileObj=convertCfileDataToYaml(cfileDataString.replace('DecodingResponse', ''))
-	#logging.debug("Cfile data: {0}".format(cfileObj))
 	requestId=cfileObj['requestId']
-	#logging.debug("Cfile Object: {0}".format(cfileObj))
 	try:
 		for callid in callHash:
 			for coupleid in callHash[callid].couples:
 				couple=callHash[callid].couples[coupleid]
-				#logging.debug("couple idDb: {0} and cfile requestId: {1}".format(couple.idDb, cfileObj['requestId']))
 				if couple.idDb==requestId:
 					cfile=couple.cfiles[requestId]=Cfile(requestId) 
 					cfile.cplid=couple.coupleid
@@ -210,9 +194,9 @@ def createCfile(line):
 					cfile.cktype=media['checksumType']
 					cfile.start_ts=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(media['startTime']/1000))
 					cfile.stop_ts=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(media['stopTime']/1000))
-					cfile.sgid=callrec.query('select callrec.GET_NEXT_SGRPID()').getresult()[0][0]
+					#cfile.sgid=callrec.query('select callrec.GET_NEXT_SGRPID()').getresult()[0][0]
 					break
-					#logging.info("Created cfile: {0} for couple: {0}".format(cfile.cfileid, cfile.cplid))
+					
 	except KeyError as keyErr:
 		pass
 		logging.warning("Key Error when creating cfile")
@@ -269,7 +253,6 @@ class Couple(object):
 		self.idDb=''
 
 	def save(self):
-		#logging.info("checking couple callid: {0}".format(self.callid))
 		if all(column!= '' for column in [self.callid, self.start_ts, self.stop_ts, self.length, self.callingnr, self.originalcallednr]):
 			self.coupleid=int(callrec.query("select add_couple({0}, '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')".format(self.callid, self.start_ts, self.stop_ts, "0.0.0.0", "0.0.0.0", self.callingnr, self.originalcallednr, self.originalcallednr, 'UNKNOWN', 'UNKNOWN', 'NORMAL', 'NO_PROBLEM', self.sid, '', len(self.cfiles), 'f')).dictresult()[0]['add_couple'])
 			callrec.query("update couples set length='{0}' where id={1}".format(self.length, self.coupleid))
@@ -296,11 +279,8 @@ class Cfile(object):
 
 	def save(self):
 		if all(column!='' for column in [self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.ckvalue, self.cktype, self.sgid]):
-			#callrec.query("insert into cfiles (id, cplid, cftype, cfpath, enc_key_id, digest, start_ts, stop_ts, cktype, ckvalue, sgid, cfsize) values ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '0')".format(self.cfileid, self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.cktype, self.ckvalue, self.sgid))
-
 			self.cfileid=int(callrec.query("select add_cfile({0}, '{1}', '{2}', '{3}', '{4}', '{5}')".format(self.cplid, '0', self.cktype, self.ckvalue, self.cftype, self.cfpath)).dictresult()[0]['add_cfile'])
 			callrec.query("update cfiles set enc_key_id='{0}', digest='{1}', start_ts='{2}', stop_ts='{3}' where id={4}".format(self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.cfileid))
-
 			return True
 		else:
 			return False
