@@ -1,4 +1,25 @@
 #!/usr/bin/python
+#!/usr/bin/python  
+#===============================================================================
+#
+#          FILE:  callfromlog.py
+# 
+#         USAGE:  python ./callfromlog.py
+# 
+#   DESCRIPTION: Will  read through core.log and restore database records
+#                 from data that is in the log.                   
+# 
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  Install PyYaml on machine
+#        AUTHOR: Colburn Hayden (CH), colburn.hayden@zoomint.com
+#       COMPANY: Zoom International, Franklin, TN
+#       CREATED: 2018-01-08
+#      REVISION:  ---
+#===============================================================================
+
+
 #install PyYaml on customer machine
 import yaml
 import time
@@ -11,7 +32,7 @@ logging.basicConfig(filename='callfromlog.log', level=logging.DEBUG)
 
 year='2017'
 
-inputLog='core.log'
+inputLog='short.log'
 
 #DB Variables
 dbName='fromlogs'
@@ -81,14 +102,14 @@ def saveCalls(callHash):
 	for callid in callHash:
 		call=callHash[callid]	
 		callSaved=call.save()
-		if callSaved == True:
+		if callSaved != False:
 			logging.debug("saved call: {0}".format(call.callid))
 			for coupleid in call.couples:
 				couple=call.couples[coupleid]
 				for item in [couple.callid, couple.start_ts, couple.stop_ts, couple.length, couple.callingnr, couple.originalcallednr]:
 					logging.debug("logging couple item {0}".format(item))
 				coupleSaved=couple.save()
-				if coupleSaved == True:
+				if coupleSaved != False:
 					logging.debug("saved couple: {0}".format(couple.coupleid))
 					for cfileid in couple.cfiles:
 						cfile=couple.cfiles[cfileid]
@@ -181,7 +202,7 @@ def createCfile(line):
 					cfile.cftype=cfileObj['type']
 					media=cfileObj['decodedMedia']
 				#	if cfile.cftype=='AUDIO':
-				#		couple.length=media['length']
+				#	couple.length=media['length']
 					cfile.cfpath=media['mediaPath']
 					cfile.enc_key_id=media['encryptionKeyId']
 					cfile.digest=media['digest']
@@ -225,7 +246,10 @@ class Call(object):
 
 	def save(self):
 		if all(column!='' for column in [self.start_ts, self.stop_ts, self.cplcnt]):
-			callrec.query("insert into calls (id, start_ts, stop_ts, cplcnt) values ('{0}', '{1}', '{2}', '{3}')".format(self.callid, self.start_ts, self.stop_ts, self.cplcnt))
+			self.callid=int(callrec.query("select add_call('{0}')".format(self.cplcnt)).dictresult()[0]['add_call'])
+			callrec.query("update calls set start_ts='{0}', stop_ts='{1}' where id={2}".format(self.start_ts, self.stop_ts, self.callid))
+			for coupleid in self.couples:
+				self.couples[coupleid].callid=self.callid
 			return True
 		else:
 			return False
@@ -247,8 +271,10 @@ class Couple(object):
 	def save(self):
 		#logging.info("checking couple callid: {0}".format(self.callid))
 		if all(column!= '' for column in [self.callid, self.start_ts, self.stop_ts, self.length, self.callingnr, self.originalcallednr]):
-			callrec.query("insert into couples (id, callid, start_ts, stop_ts, callingip, calledip, callingnr, originalcallednr, finalcallednr, callingpartyname, calledpartyname, cpltype, problemstatus, sid, description, cfcnt, protected, length) values ({0}, '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}' , '{17}')".format(self.coupleid, self.callid, self.start_ts, self.stop_ts, "0.0.0.0", "0.0.0.0", self.callingnr, self.originalcallednr, self.originalcallednr, '', '', 'NORMAL', 'NO_PROBLEM', self.sid, '', len(self.cfiles), 'f', self.length))
-
+			self.coupleid=int(callrec.query("select add_couple({0}, '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')".format(self.callid, self.start_ts, self.stop_ts, "0.0.0.0", "0.0.0.0", self.callingnr, self.originalcallednr, self.originalcallednr, 'UNKNOWN', 'UNKNOWN', 'NORMAL', 'NO_PROBLEM', self.sid, '', len(self.cfiles), 'f')).dictresult()[0]['add_couple'])
+			callrec.query("update couples set length='{0}' where id={1}".format(self.length, self.coupleid))
+			for cfileid in self.cfiles:
+				self.cfiles[cfileid].cplid=self.coupleid
 			return True
 		else:
 			return False
@@ -270,7 +296,11 @@ class Cfile(object):
 
 	def save(self):
 		if all(column!='' for column in [self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.ckvalue, self.cktype, self.sgid]):
-			callrec.query("insert into cfiles (id, cplid, cftype, cfpath, enc_key_id, digest, start_ts, stop_ts, cktype, ckvalue, sgid, cfsize) values ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '0')".format(self.cfileid, self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.cktype, self.ckvalue, self.sgid))
+			#callrec.query("insert into cfiles (id, cplid, cftype, cfpath, enc_key_id, digest, start_ts, stop_ts, cktype, ckvalue, sgid, cfsize) values ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '0')".format(self.cfileid, self.cplid, self.cftype, self.cfpath, self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.cktype, self.ckvalue, self.sgid))
+
+			self.cfileid=int(callrec.query("select add_cfile({0}, '{1}', '{2}', '{3}', '{4}', '{5}')".format(self.cplid, '0', self.cktype, self.ckvalue, self.cftype, self.cfpath)).dictresult()[0]['add_cfile'])
+			callrec.query("update cfiles set enc_key_id='{0}', digest='{1}', start_ts='{2}', stop_ts='{3}' where id={4}".format(self.enc_key_id, self.digest, self.start_ts, self.stop_ts, self.cfileid))
+
 			return True
 		else:
 			return False
