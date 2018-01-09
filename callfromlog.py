@@ -257,6 +257,8 @@ class Couple(object):
 			callrec.query("update couples set length='{0}' where id={1}".format(self.length, self.coupleid))
 			for cfileid in self.cfiles:
 				self.cfiles[cfileid].cplid=self.coupleid
+			callrec.query("insert into couple_extdata (key, value, cplid) values ('Note', 'Restored from log', {0})".format(self.coupleid))
+			
 			return True
 		else:
 			return False
