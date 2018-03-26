@@ -123,7 +123,7 @@ def createCall(line):
 	callidString=getID(re.search(r'Call:([0-9])+', line).group(0))
 
 	if currentCall==0:
-		currentCall=callidString
+		currentCall=int(callidString)
 		
 	if int(callIdString)<currentCall:
 		groupCounter+=1
