@@ -25,7 +25,7 @@ sc_users=wbsc.query('select * from sc_users').dictresult()
 for i in sc_users:
     enc.query("update users set callcentreid='{0}' where username='{0}'".format(i['login']))
     
-callrec.close()
+wbsc.close()
 enc.close()
 
 
